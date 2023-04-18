@@ -88,6 +88,7 @@ module MIPS (
 
 	wire [4:0]	WriteRegister_IDtoIDEXE;
 	wire 		WriteEnable_IDtoIDEXE;
+	wire [31:0] Instruction_IDtoIDEXE;
 
 //------------------------------------------
 //WIRES ORIGINATING FROM THE ID/EXE REGISTER
@@ -106,6 +107,9 @@ module MIPS (
 
 	wire [4:0]  	WriteRegister_IDEXEtoEXEMEM;
 	wire        	WriteEnable_IDEXEtoEXEMEM;
+
+	//ID/EXE --> Forward
+	wire [31:0]		Instruction_IDEXEtoForward;
 
 //------------------------------------
 //WIRES ORIGINATING FROM THE EXE STAGE
@@ -294,6 +298,7 @@ ID ID(
 
 		.WriteRegister_OUT(WriteRegister_IDtoIDEXE),
 		.WriteEnable_OUT(WriteEnable_IDtoIDEXE)
+		.Instruction_OUT(Instruction_IDtoIDEXE)
 
 );
 
@@ -321,7 +326,8 @@ IDEXE IDEXE(
 		
 		//WB STAGE INFORMATION
 		.WriteRegister_IN(WriteRegister_IDtoIDEXE),
-		.WriteEnable_IN(WriteEnable_IDtoIDEXE),		
+		.WriteEnable_IN(WriteEnable_IDtoIDEXE),
+		.Instruction_IN(Instruction_IDtoIDEXE),		
 
 	//MODULE OUTPUTS
 	
@@ -339,6 +345,9 @@ IDEXE IDEXE(
 		//WB STAGE INFORMATION
 		.WriteRegister_OUT(WriteRegister_IDEXEtoEXEMEM),
 		.WriteEnable_OUT(WriteEnable_IDEXEtoEXEMEM)
+
+		//Forward stage information
+		.Instruction_OUT(Instruction_IDEXEtoForward)
 
 );
 
@@ -479,7 +488,9 @@ Hazard Hazard(
 Forward Forward(
 
 	//MODULE INPUTS
-	
+
+		//Instruction from ID/EX
+		.Instruction_IN(Instruction_IDEXEtoForward)
 
 	//MODULE OUTPUTS
 

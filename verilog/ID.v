@@ -33,7 +33,8 @@ module ID(
 		output 	 	MemWrite_OUT,			
 
 		output [4:0]  	WriteRegister_OUT,		
-		output 	 	WriteEnable_OUT,				
+		output 	 	WriteEnable_OUT,
+		output [31:0] 	Instruction_OUT,				
 
 		//ID --> SYSTEM
 		output 		Syscall_OUT
@@ -55,6 +56,7 @@ assign 	RegisterRT 	= Instruction_IN[20:16];
 assign 	RegisterRD 	= Instruction_IN[15:11];
 assign 	Immediate 	= Instruction_IN[15:0];
 assign 	ShiftAmount 	= Instruction_IN[10:6];
+assign Instruction = Instruction_IN[31:0];
 
 wire [31:0]    	RegisterRSValue;
 wire [31:0]    	RegisterRTValue;
@@ -175,5 +177,6 @@ assign WriteEnable_OUT 		= (WriteRegister_OUT != 5'd0) ? RegWrite : 1'd0;
 assign AltPCEnable_OUT 		= AltPCEnable;
 assign AltPC_OUT 		= AltPC;
 assign Syscall_OUT 		= Syscall;
+assign Instruction_OUT = Instruction;
 
 endmodule

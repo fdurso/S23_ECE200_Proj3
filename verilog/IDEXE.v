@@ -23,7 +23,8 @@ module IDEXE(
 		
 		//ID --> ID/EXE
 		input [4:0]	WriteRegister_IN,
-		input 		WriteEnable_IN,		
+		input 		WriteEnable_IN,
+		input [31:0] Instruction_IN,		
 
 	//MODULE OUTPUTS
 	
@@ -40,7 +41,10 @@ module IDEXE(
 	
 		//ID/EXE --> EXE/MEM (WB INFORMATION)
 		output [4:0]	WriteRegister_OUT,
-		output 		WriteEnable_OUT
+		output 		WriteEnable_OUT,
+
+		//ID/EXE --> Forward
+		output [31:0] Instruction_OUT
 
 );
 
@@ -56,6 +60,7 @@ reg		MemWrite;
 
 reg [4:0]	WriteRegister;
 reg		WriteEnable;
+reg [31:0] Instruction;
 
 //ASSIGN OUTPUTS TO PIPELINE REGISTERS
 assign OperandA_OUT 		= OperandA;
@@ -69,6 +74,7 @@ assign MemWrite_OUT 		= MemWrite;
 
 assign WriteRegister_OUT 	= WriteRegister;
 assign WriteEnable_OUT		= WriteEnable;
+assign Instruction_OUT 		= Instruction;
 
 //WHEN CLOCK RISES OR RESET FALLS
 always @(posedge CLOCK or negedge RESET) begin
@@ -121,6 +127,7 @@ always @(posedge CLOCK or negedge RESET) begin
 	
 			WriteRegister	<= WriteRegister_IN;
 			WriteEnable	<= WriteEnable_IN;
+			Instruction <= Instruction_IN;
 	
 		//ELSE IF MODULE IS BEING FLUSHED
 		end else if (FLUSH) begin
