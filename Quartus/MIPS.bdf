@@ -20,7 +20,7 @@ applicable agreement for further details.
 */
 (header "graphic" (version "1.4"))
 (symbol
-	(rect 1600 -32 1888 112)
+	(rect 1600 -40 1888 104)
 	(text "EXE" (rect 5 0 25 12)(font "Arial" ))
 	(text "inst" (rect 8 128 25 140)(font "Arial" ))
 	(port

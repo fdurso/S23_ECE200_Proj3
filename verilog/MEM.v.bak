@@ -34,9 +34,7 @@ assign WriteData_OUT 	= MemRead_IN ? data_read_aligned : ALUResult_IN;
  */
 always begin
 
-	reg[31:0] data_read_aligned = MemWriteData_IN;
-	reg DataSize_OUT;
-	reg[31:0] Data_OUT;
+	data_read_aligned = MemWriteData_IN;
 
 	//CASE STATEMENT FOR MEM CONTROL WORD
 	case(MemControl_IN)
