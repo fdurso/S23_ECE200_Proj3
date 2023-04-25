@@ -1,29 +1,49 @@
 module Forward(
 
 	//MODULE INPUTS
-		input [31:0] Instruction_IN
+		input [31:0] Instruction_IN,
+		input [4:0]  EXMEM_RegD,
+		input [4:0]  MEMWB_RegD,
+		input [31:0] EXMEM_RegD_Value,
+		input [31:0] MEMWB_RegD_Value,
+		input        CLOCK,
 
 	//MODULE OUTPUTS
-		
-
-
+		output [31:0] Forward_A,
+		output [31:0] Forward_B
 
 );
 
-wire [5:0]	Opcode;
-wire [25:0]	Index;
 wire [4:0]     	RegisterRS;    
 wire [4:0]      RegisterRT;
-wire [4:0]     	RegisterRD;
-wire [15:0]    	Immediate;
-wire [4:0]	ShiftAmount;
+wire [4:0]		EXMEM_Rd;
+wire [4:0]		MEMWB_Rd;
 
-assign 	Opcode 		= Instruction_IN[31:26];
-assign 	Index		= Instruction_IN[25:0];
 assign 	RegisterRS 	= Instruction_IN[25:21];
 assign 	RegisterRT 	= Instruction_IN[20:16];
-assign 	RegisterRD 	= Instruction_IN[15:11];
-assign 	Immediate 	= Instruction_IN[15:0];
-assign 	ShiftAmount 	= Instruction_IN[10:6];
+assign  EXMEM_Rd    = EXMEM_RegD;
+assign  MEMWB_Rd    = MEMWB_RegD;
+
+
+always @(posedge CLOCK) begin
+
+	// EXMEM RD == IDEX RS
+	if(EXMEM_Rd == RegisterRS)begin
+		Forward_A = EXMEM_RegD_Value;
+	end
+	// EXEMEM RD == IDEX RT
+	if(EXMEM_Rd == RegisterRT)begin
+		Forward_B = EXMEM_RegD_Value;
+	end
+	// MEMWB RD == IDEX RS
+	if(MEMWB_Rd == RegisterRS)begin
+		Forward_A = MEMWB_RegD_Value;
+	end
+	// MEMWB RD == IDEX RT
+	if(MEMWB_Rd == RegisterRT)begin
+		Forward_B = MEMWB_RegD_Value;
+	end
+end
+
 
 endmodule
