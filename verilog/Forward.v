@@ -26,19 +26,23 @@ always @(posedge CLOCK) begin
 
 	// EXMEM RD == IDEX RS
 	if(EXMEM_Rd == RegisterRS)begin
-		Forward_A = 2'b01;
+		Forward_A = 2'b10;
 	end
 	// EXEMEM RD == IDEX RT
-	if(EXMEM_Rd == RegisterRT)begin
+	else if(EXMEM_Rd == RegisterRT)begin
 		Forward_B = 2'b10;
 	end
 	// MEMWB RD == IDEX RS
-	if(MEMWB_Rd == RegisterRS)begin
+	else if(MEMWB_Rd == RegisterRS)begin
 		Forward_A = 2'b01;
 	end
 	// MEMWB RD == IDEX RT
-	if(MEMWB_Rd == RegisterRT)begin
-		Forward_B = 2'b10;
+	else if(MEMWB_Rd == RegisterRT)begin
+		Forward_B = 2'b01;
+	end
+	else begin
+		Forward_A = 2'b00;
+		Forward_B = 2'b00;
 	end
 end
 
