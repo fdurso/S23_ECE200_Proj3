@@ -4,7 +4,21 @@ module Hazard(
 	
 		//CONTROL SIGNALS
 		input	CLOCK,
-		input 	RESET,	
+		input 	RESET,
+
+		//ID
+		input Jump_IN,
+		input Branch_IN,
+		input  [4:0] IDRegRS_IN,
+		input  [4:0] IDRegRT_IN,
+
+		//ID/EXE
+		input [4:0] IDEXEWriteReg_IN,
+		input IDEXEWriteEnable_IN,
+
+		//EXE/MEM
+		input [4:0] EXEMEMWriteReg_IN,
+		input EXEMEMMemRead_IN,	
 
 	//MODULE OUTPUTS
 
@@ -50,7 +64,11 @@ always @(posedge CLOCK or negedge RESET) begin
 
 		MultiCycleRing <= {{MultiCycleRing[3:0],MultiCycleRing[4]}};
 
-	end
+		if(((IDEXEWriteEnable_IN)&& ((Branch_IN || Jumb_IN)&&((IDRegisterRS_IN == IDEXEWriteRegister_IN)||(IDRegisterRT_IN == IDEXEWriteRegister_IN))))||((Branch_IN || Jumb_IN)&&EXEMEMMemRead_IN &&((EXEMEMWriteRegister_IN ==IDRegisterRS_IN) || (EXEMEMWriteRegister_IN ==IDRegisterRT_IN))))begin
+			assign FLUSH_IDEXE_Enable= 1'b1;
+		end else
+			assign FLUSH_IDEXE_Enable= 1'b0;
+		end
 
 end
 
