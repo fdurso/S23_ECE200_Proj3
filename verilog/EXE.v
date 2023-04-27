@@ -5,8 +5,18 @@ module EXE(
 		//CONTROL SIGNALS
 		input CLOCK,
 		input RESET,
+		
+		//FORWARD --> EXE
 		input [1:0] aSelect_IN, //select bits for the multiplexers from the forwarding unit
 		input [1:0] bSelect_IN,
+		
+		//EXMEM --> EXE
+		input [31:0]	fromEXMEM_OperandA_IN,
+		input [31:0]	fromEXMEM_OperandB_IN,
+		
+		//MEMWB --> EXE
+		input [31:0]	fromMEMWB_OperandA_IN,
+		input [31:0]	fromMEMWB_OperandB_IN,
 
 		//ID/EXE --> EXE
 		input [31:0] 	OperandA_IN,
@@ -34,17 +44,17 @@ wire [31:0] newOperandB,
 
 always @(posedge CLOCK) begin
 	case (aSelect_IN)
-		2'b00: newOperandA <=  ;
-		2'b01: newOperandA <=  ;
-		2'b10: newOperandA <=  ;
-		2'b11: newOperandA <=  ;
+		2'b00: newOperandA <= OperandA_IN; //ID/EXE Source
+		2'b01: newOperandA <= fromMEMWB_OperandA_IN; //MEM/WB Source
+		2'b10: newOperandA <= fromEXMEM_OperandA_IN; //EXE/MEM Source
+		//2'b11: newOperandA <=  ; //This shouldn't happen
 	endcase
 
 	case (bSelect_IN)
-		2'b00: newOperandB <=  ;
-		2'b01: newOperandB <=  ;
-		2'b10: newOperandB <=  ;
-		2'b11: newOperandB <=  ;
+		2'b00: newOperandB <= OperandB_IN;
+		2'b01: newOperandB <= fromMEMWB_OperandB_IN;
+		2'b10: newOperandB <=  fromEXMEM_OperandB_IN;
+		//2'b11: newOperandB <=  ;
 	endcase
 end
 

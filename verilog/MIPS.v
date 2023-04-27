@@ -151,6 +151,9 @@ module MIPS (
 //WIRES ORIGINATING FROM THE MEM/WB REGISTER
 //------------------------------------------
 
+	//MEMWB --> EXE
+	wire [31:0]		ForwardData_MEMWBtoEXE;
+
 	//MEM/WB --> ID	
 	wire [31:0] 	WriteData_MEMWBtoID;
 	wire [4:0]  	WriteRegister_MEMWBtoID;
@@ -174,6 +177,9 @@ module MIPS (
 //WIRES ORIGINATING FROM THE FORWARDING UNIT
 //------------------------------------------
 
+	//FORWARD --> EXE
+	wire [1:0] ALUOperandAMuxControl_toEXE
+	wire [1:0] ALUOperandBMuxControl_toEXE
 
 //------------------------------------------------
 //WIRES ORIGINATING FROM THE HAZARD DETECTION UNIT
@@ -365,6 +371,10 @@ EXE EXE(
 		.OperandB_IN(OperandB_IDEXEtoEXE),	
 		.ALUControl_IN(ALUControl_IDEXEtoEXE),
 		.ShiftAmount_IN(ShiftAmount_IDEXEtoEXE),
+		
+		//Forward --> EXE
+		.aSelect_IN(ALUOperandAMuxControl_toEXE),
+		.bSelect_IN(ALUOperandBMuxControl_toEXE),
 
 	//MODULE OUTPUTS
 	
@@ -490,9 +500,12 @@ Forward Forward(
 	//MODULE INPUTS
 
 		//Instruction from ID/EX
-		.Instruction_IN(Instruction_IDEXEtoForward)
+		.Instruction_IN(Instruction_IDEXEtoForward),
 
 	//MODULE OUTPUTS
+	
+		.Forward_A(ALUOperandAMuxControl_toEXE),
+		.Forward_B(ALUOperandBMuxControl_toEXE)
 
 
 );
