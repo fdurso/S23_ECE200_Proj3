@@ -5,15 +5,15 @@ module EXE(
 		//CONTROL SIGNALS
 		input CLOCK,
 		input RESET,
-		
+
 		//FORWARD --> EXE
 		input [1:0] aSelect_IN, //select bits for the multiplexers from the forwarding unit
 		input [1:0] bSelect_IN,
-		
+
 		//EXMEM --> EXE
 		input [31:0]	fromEXMEM_OperandA_IN,
 		input [31:0]	fromEXMEM_OperandB_IN,
-		
+
 		//MEMWB --> EXE
 		input [31:0]	fromMEMWB_OperandA_IN,
 		input [31:0]	fromMEMWB_OperandB_IN,
@@ -53,7 +53,7 @@ always @(posedge CLOCK) begin
 	case (bSelect_IN)
 		2'b00: newOperandB <= OperandB_IN;
 		2'b01: newOperandB <= fromMEMWB_OperandB_IN;
-		2'b10: newOperandB <=  fromEXMEM_OperandB_IN;
+		2'b10: newOperandB <= fromEXMEM_OperandB_IN;
 		//2'b11: newOperandB <=  ;
 	endcase
 end

@@ -3,16 +3,16 @@
 //-----------------------------------------
 module MIPS (
 
-	/* NOTE 
+	/* NOTE
  	 * The names of these inputs/outputs cannot be changed.
  	 * They are referenced directly by the test bench.
  	 * Renaming will result in the program failing to compile.
  	 */
 
 	//MODULE INPUTS
-	
+
 		input 		CLOCK,
-		input 		RESET,	
+		input 		RESET,
 
 		input [31:0] 	Instruction_IN,		//INSTRUCTION FROM INSTRUCTION MEMORY
 		input [31:0] 	Data_IN,		//DATA FROM DATA MEMORY
@@ -23,10 +23,10 @@ module MIPS (
 		/* verilator lint_on UNUSED */
 
 	//MODULE OUTPUTS
-	
+
 		output [31:0] 	InstructionAddress_OUT,	//ADDRESS OF INSTRUCTION TO FETCH FROM INSTRUCTION MEMORY
 		output [31:0] 	DataAddress_OUT,	//ADDRESS OF DATA MEMORY WE WANT TO INTERACT WITH (Read/Write)
-	
+
 		/* NOTE
  		 * DataSize_OUT follows the convention:
  		 * 1 byte: 	1
@@ -34,12 +34,12 @@ module MIPS (
  		 * 3 bytes: 	3
  		 * 4 bytes: 	0
  		 */
-	
-		output [31:0] 	Data_OUT,		//DATA TO WRITE TO DATA MEMORY		
+
+		output [31:0] 	Data_OUT,		//DATA TO WRITE TO DATA MEMORY
 		output [1:0] 	DataSize_OUT,		//NUMBER OF BYTES TO WRITE TO DATA MEMORY
 		output 		MemRead_OUT,		//TELL DATA MEMORY WE WANT TO READ
-		output 		MemWrite_OUT,		//TELL DATA MEMORY WE WANT TO WRITE	
-		
+		output 		MemWrite_OUT,		//TELL DATA MEMORY WE WANT TO WRITE
+
 		output 		SYS,			//TELL THE SYSTEM TO EXECUTE A SYSCALL
 
 		/* verilator lint_off UNUSED */
@@ -47,7 +47,7 @@ module MIPS (
 		output 		MemBlockRead_OUT,	//Request a block read
 		output 		MemBlockWrite_OUT	//Request a block write
 		/* verilator lint_on UNUSED */
-	
+
 );
 
 //-----------------------------------
@@ -75,12 +75,12 @@ module MIPS (
 	//ID --> IF
 	wire [31:0]	AltPC_IDtoIF;
 	wire 		AltPCEnable_IDtoIF;
-	
+
 	//ID --> ID/EXE
 	wire [31:0]	OperandA_IDtoIDEXE;
 	wire [31:0]	OperandB_IDtoIDEXE;
 	wire [5:0]	ALUControl_IDtoIDEXE;
-	wire [4:0]	ShiftAmount_IDtoIDEXE; 
+	wire [4:0]	ShiftAmount_IDtoIDEXE;
 
 	wire [31:0]	MemWriteData_IDtoIDEXE;
 	wire		MemRead_IDtoIDEXE;
@@ -154,10 +154,13 @@ module MIPS (
 	//MEMWB --> EXE
 	wire [31:0]		ForwardData_MEMWBtoEXE;
 
-	//MEM/WB --> ID	
+	//MEM/WB --> ID
 	wire [31:0] 	WriteData_MEMWBtoID;
 	wire [4:0]  	WriteRegister_MEMWBtoID;
 	wire        	WriteEnable_MEMWBtoID;
+
+	//MEMWB --> FORWARD
+	wire [4:0]		RegD_MEMWBtoFORWARD
 
 //-----------------------------------------
 //WIRES ORIGINATING FROM INSTRUCTION MEMORY
@@ -212,7 +215,7 @@ assign Instruction_IMtoIFID 	= Instruction_IN;
 assign Data_DMtoMEM 		= Data_IN;
 
 //PROCESSOR OUTPUTS
-assign InstructionAddress_OUT 	= InstructionAddress_IFtoIM; 
+assign InstructionAddress_OUT 	= InstructionAddress_IFtoIM;
 assign Data_OUT 		= Data_MEMtoDM;
 assign DataAddress_OUT 		= ALUResult_EXEMEMtoMEM;
 assign DataSize_OUT 		= DataSize_MEMtoDM;
@@ -223,21 +226,21 @@ assign MemWrite_OUT 		= MemWrite_EXEMEMtoDM;
 IF IF(
 
 	//MODULE INPUTS
-		
+
 		//CONTROL SIGNALS
-		.CLOCK(CLOCK),	
-		.RESET(RESET),		
+		.CLOCK(CLOCK),
+		.RESET(RESET),
 		.STALL(STALL_toIFID),
 
 		//ID --> IF
 		.AltPC_IN(AltPC_IDtoIF),
-		.AltPCEnable_IN(AltPCEnable_IDtoIF),		
+		.AltPCEnable_IN(AltPCEnable_IDtoIF),
 
 	//MODULE OUTPUTS
-	
+
 		//IF --> IF/ID
 		.InstructionAddressPlus4_OUT(InstructionAddressPlus4_IFtoIFID),
-		
+
 		//IF --> IM
 		.InstructionAddress_OUT(InstructionAddress_IFtoIM)
 
@@ -259,7 +262,7 @@ IFID IFID(
 		.InstructionAddressPlus4_IN(InstructionAddressPlus4_IFtoIFID),
 
 	//MODULE OUTPUTS
-	
+
 		//INFORMATION FOR ID STAGE
 		.Instruction_OUT(Instruction_IFIDtoID),
 		.InstructionAddressPlus4_OUT(InstructionAddressPlus4_IFIDtoID)
@@ -270,14 +273,14 @@ IFID IFID(
 ID ID(
 
 	//MODULE INPUTS
-	
+
 		//GLOBAL SIGNALS
 		.CLOCK(CLOCK),
-		.RESET(RESET),	
+		.RESET(RESET),
 
-		//MEM/WB --> ID	
+		//MEM/WB --> ID
 		.WriteEnable_IN(WriteEnable_MEMWBtoID),
-		.WriteData_IN(WriteData_MEMWBtoID),	
+		.WriteData_IN(WriteData_MEMWBtoID),
 		.WriteRegister_IN(WriteRegister_MEMWBtoID),
 
 		//IF/ID --> ID
@@ -285,14 +288,14 @@ ID ID(
 		.InstructionAddressPlus4_IN(InstructionAddressPlus4_IFIDtoID),
 
 	//MODULE OUTPUTS
-	
+
 		.Syscall_OUT(SYS),
-	
+
 		//ID --> IF
 		.AltPCEnable_OUT(AltPCEnable_IDtoIF),
 		.AltPC_OUT(AltPC_IDtoIF),
 
-		//ID --> ID/EXE	
+		//ID --> ID/EXE
 		.OperandA_OUT(OperandA_IDtoIDEXE),
 		.OperandB_OUT(OperandB_IDtoIDEXE),
 		.ALUControl_OUT(ALUControl_IDtoIDEXE),
@@ -312,42 +315,42 @@ ID ID(
 IDEXE IDEXE(
 
 	//MODULE INPUTS
-	
+
 		//CONTROL SIGNALS
 		.CLOCK(CLOCK),
 		.RESET(RESET),
 		.STALL(STALL_toIDEXE),
 		.FLUSH(FLUSH_toIDEXE),
 
-		//EXE STAGE INFORMATION	
+		//EXE STAGE INFORMATION
 		.OperandA_IN(OperandA_IDtoIDEXE),
 		.OperandB_IN(OperandB_IDtoIDEXE),
 		.ALUControl_IN(ALUControl_IDtoIDEXE),
 		.ShiftAmount_IN(ShiftAmount_IDtoIDEXE),
-	
+
 		//MEM STAGE INFORMATION
 		.MemWriteData_IN(MemWriteData_IDtoIDEXE),
 		.MemRead_IN(MemRead_IDtoIDEXE),
 		.MemWrite_IN(MemWrite_IDtoIDEXE),
-		
+
 		//WB STAGE INFORMATION
 		.WriteRegister_IN(WriteRegister_IDtoIDEXE),
 		.WriteEnable_IN(WriteEnable_IDtoIDEXE),
-		.Instruction_IN(Instruction_IDtoIDEXE),		
+		.Instruction_IN(Instruction_IDtoIDEXE),
 
 	//MODULE OUTPUTS
-	
+
 		//EXE STAGE INFORMATION
 		.OperandA_OUT(OperandA_IDEXEtoEXE),
 		.OperandB_OUT(OperandB_IDEXEtoEXE),
 		.ALUControl_OUT(ALUControl_IDEXEtoEXE),
 		.ShiftAmount_OUT(ShiftAmount_IDEXEtoEXE),
-	
-		//MEM STAGE INFORMATION	
+
+		//MEM STAGE INFORMATION
 		.MemWriteData_OUT(MemWriteData_IDEXEtoEXEMEM),
 		.MemRead_OUT(MemRead_IDEXEtoEXEMEM),
 		.MemWrite_OUT(MemWrite_IDEXEtoEXEMEM),
-	
+
 		//WB STAGE INFORMATION
 		.WriteRegister_OUT(WriteRegister_IDEXEtoEXEMEM),
 		.WriteEnable_OUT(WriteEnable_IDEXEtoEXEMEM)
@@ -361,23 +364,23 @@ IDEXE IDEXE(
 EXE EXE(
 
 	//MODULE INPUTS
-		
+
 		//CONTROL SIGNALS
 		.CLOCK(CLOCK),
-		.RESET(RESET),		
+		.RESET(RESET),
 
 		//ID/EXE --> EXE
 		.OperandA_IN(OperandA_IDEXEtoEXE),
-		.OperandB_IN(OperandB_IDEXEtoEXE),	
+		.OperandB_IN(OperandB_IDEXEtoEXE),
 		.ALUControl_IN(ALUControl_IDEXEtoEXE),
 		.ShiftAmount_IN(ShiftAmount_IDEXEtoEXE),
-		
+
 		//Forward --> EXE
 		.aSelect_IN(ALUOperandAMuxControl_toEXE),
 		.bSelect_IN(ALUOperandBMuxControl_toEXE),
 
 	//MODULE OUTPUTS
-	
+
 		//EXE --> EXE/MEM
 		.ALUResult_OUT(ALUResult_EXEtoEXEMEM)
 );
@@ -386,7 +389,7 @@ EXE EXE(
 EXEMEM EXEMEM(
 
 	//MODULE INPUTS
-	
+
 		//CONTROL SIGNALS
 		.CLOCK(CLOCK),
 		.RESET(RESET),
@@ -421,31 +424,31 @@ EXEMEM EXEMEM(
 MEM MEM(
 
 	//MODULE INPUTS
-		
+
 		//EXE/MEM --> MEM
 		.MemRead_IN(MemRead_EXEMEMtoMEM),
 		.MemControl_IN(MemControl_EXEMEMtoMEM),
 		.ALUResult_IN(ALUResult_EXEMEMtoMEM),
 		.MemWriteData_IN(MemWriteData_EXEMEMtoMEM),
-		
+
 		//DM --> MEM
 		.Data_IN(Data_DMtoMEM),
 
 
 	//MODULE OUTPUTS
-		
+
 		//MEM --> DM
-		.DataSize_OUT(DataSize_MEMtoDM),	
-		.Data_OUT(Data_MEMtoDM),		
-		
+		.DataSize_OUT(DataSize_MEMtoDM),
+		.Data_OUT(Data_MEMtoDM),
+
 		//MEM --> MEM/WB
-		.WriteData_OUT(WriteData_MEMtoMEMWB)	
+		.WriteData_OUT(WriteData_MEMtoMEMWB)
 );
 
 MEMWB MEMWB(
 
 	//MODULE INPUTS
-	
+
 		//CONTROL SIGNALS
 		.CLOCK(CLOCK),
 		.RESET(RESET),
@@ -462,7 +465,8 @@ MEMWB MEMWB(
 		//INFORMATION FOR WB STAGE
 		.WriteData_OUT(WriteData_MEMWBtoID),
 		.WriteRegister_OUT(WriteRegister_MEMWBtoID),
-		.WriteEnable_OUT(WriteEnable_MEMWBtoID)
+		.WriteEnable_OUT(WriteEnable_MEMWBtoID),
+		.MEMWBRegD_toForward(MEMWBRegD_toForward)
 
 );
 
@@ -470,11 +474,11 @@ MEMWB MEMWB(
 Hazard Hazard(
 
 	//MODULE INPUTS
-	
+
 		//CONTROL SIGNALS
 		.CLOCK(CLOCK),
 		.RESET(RESET),
-		
+
 	//MODULE OUTPUTS
 
 		//HAZARD --> IF/ID
@@ -499,11 +503,18 @@ Forward Forward(
 
 	//MODULE INPUTS
 
+		//MEMWB --> FORWARD
+		.MEMWB_RegD(MEMWBRegD_toForward),
+		.MEMWB_WriteEnable(WriteEnable_MEMWBtoID),
+
+		//EXMEM --> FORWARD
+		.EXMEM_RegD(WriteRegister_EXEMEMtoMEMWB), //This is the same wire that goes to the forwarding unit
+
 		//Instruction from ID/EX
 		.Instruction_IN(Instruction_IDEXEtoForward),
 
 	//MODULE OUTPUTS
-	
+
 		.Forward_A(ALUOperandAMuxControl_toEXE),
 		.Forward_B(ALUOperandBMuxControl_toEXE)
 

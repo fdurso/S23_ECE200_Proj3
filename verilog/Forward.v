@@ -4,6 +4,7 @@ module Forward(
 		input [31:0] Instruction_IN,
 		input [4:0]  EXMEM_RegD,
 		input [4:0]  MEMWB_RegD,
+		input 			 MEMWB_WriteEnable,
 		input        CLOCK,
 
 	//MODULE OUTPUTS
@@ -11,7 +12,7 @@ module Forward(
 		output [31:0] Forward_B
 );
 
-wire [4:0]     	RegisterRS;    
+wire [4:0]     	RegisterRS;
 wire [4:0]      RegisterRT;
 wire [4:0]		EXMEM_Rd;
 wire [4:0]		MEMWB_Rd;

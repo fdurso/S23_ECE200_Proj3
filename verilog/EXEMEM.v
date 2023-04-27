@@ -1,7 +1,7 @@
 module EXEMEM(
 
 	//MODULE INPUTS
-		
+
 		//SYSTEM --> EXE/MEM
 		input CLOCK,
 		input RESET,
@@ -32,7 +32,11 @@ module EXEMEM(
 		//EXE/MEM --> MEM/WB (WB INFORMATION)
 		output [31:0] 	ALUResult_OUT,
 		output [4:0]  	WriteRegister_OUT,
-		output 		WriteEnable_OUT
+		output 		WriteEnable_OUT,
+
+		//EXEMEM --> FORWARD
+		output [4:0]		EXMEM_RegD_toForward
+
 
 );
 
@@ -46,7 +50,7 @@ reg [31:0] 	ALUResult;
 reg [4:0] 	WriteRegister;
 reg 		WriteEnable;
 
-//ASSIGN OUTPUTS TO PIPELINE REGISTERS 
+//ASSIGN OUTPUTS TO PIPELINE REGISTERS
 assign MemWriteData_OUT 	= MemWriteData;
 assign MemControl_OUT 		= MemControl;
 assign MemRead_OUT 		= MemRead;
@@ -65,7 +69,7 @@ always @(posedge CLOCK or negedge RESET) begin
 		//SET PIPELINE REGISTERS TO 0
 		MemWriteData 	<= 0;
 		MemControl 	<= 0;
-		MemRead 	<= 0;				
+		MemRead 	<= 0;
 		MemWrite 	<= 0;
 
 		ALUResult 	<= 0;
@@ -80,7 +84,7 @@ always @(posedge CLOCK or negedge RESET) begin
 		$display("MemWriteData:\t\t%x", MemWriteData);
 		$display("MemControl:\t\t%d", MemControl);
 		$display("MemRead:\t\t%b", MemRead);
-		$display("MemWrite:\t\t%b", MemWrite); 
+		$display("MemWrite:\t\t%b", MemWrite);
 		$display("");
 		$display("ALUResult:\t\t%x", ALUResult);
 		$display("WriteRegister:\t\t%d", WriteRegister);
@@ -90,22 +94,22 @@ always @(posedge CLOCK or negedge RESET) begin
 		if(!STALL && !FLUSH) begin
 
 			//SET PIPELINE REGISTERS TO INPUTS
-			MemWriteData 	<= MemWriteData_IN;	
+			MemWriteData 	<= MemWriteData_IN;
 			MemControl 	<= MemControl_IN;
 			MemRead 	<= MemRead_IN;
 			MemWrite 	<= MemWrite_IN;
-			
+
 			ALUResult 	<= ALUResult_IN;
 			WriteRegister 	<= WriteRegister_IN;
 			WriteEnable 	<= WriteEnable_IN;
 
 		//ELSE IF MODULE IS BEING FLUSHED
 		end else if (FLUSH) begin
-	
+
 			//SET PIPELINE REGISTERS TO ZERO
 			MemWriteData 	<= 0;
 			MemControl 	<= 0;
-			MemRead 	<= 0;				
+			MemRead 	<= 0;
 			MemWrite 	<= 0;
 
 			ALUResult 	<= 0;

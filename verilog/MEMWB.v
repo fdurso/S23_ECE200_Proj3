@@ -1,7 +1,7 @@
 module MEMWB(
 
 	//MODULE INPUTS
-	
+
 		//SYSTEM --> MEM/WB
 		input CLOCK,
 		input RESET,
@@ -22,7 +22,7 @@ module MEMWB(
 		//MEM/WB --> ID
 		output [31:0] 	WriteData_OUT,
 		output [4:0]  	WriteRegister_OUT,
-		output 		WriteEnable_OUT
+		output 		WriteEnable_OUT,
 
 );
 
@@ -66,12 +66,12 @@ always @(posedge CLOCK or negedge RESET) begin
 
 		//ELSE IF MODULE IS BEING FLUSHED
 		end else if(FLUSH) begin
-	
+
 			//SET PIPELINE REGISTERS TO 0
 			WriteData 	<= 0;
 			WriteRegister 	<= 0;
 			WriteEnable 	<= 0;
-	
+
 		// ELSE IF MODULE IS BEING STALLED
 		end else if(STALL) begin
 
