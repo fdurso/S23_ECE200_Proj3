@@ -64,12 +64,32 @@ always @(posedge CLOCK or negedge RESET) begin
 
 		MultiCycleRing <= {{MultiCycleRing[3:0],MultiCycleRing[4]}};
 
-		if(((IDEXEWriteEnable_IN)&& ((Branch_IN || Jumb_IN)&&((IDRegisterRS_IN == IDEXEWriteRegister_IN)||(IDRegisterRT_IN == IDEXEWriteRegister_IN))))||((Branch_IN || Jumb_IN)&&EXEMEMMemRead_IN &&((EXEMEMWriteRegister_IN ==IDRegisterRS_IN) || (EXEMEMWriteRegister_IN ==IDRegisterRT_IN))))begin
+		// Loading hazard
+		if(((IDEXEWriteEnable_IN) && ((Branch_IN || Jump_IN) && ((IDRegRS_IN == IDEXEWriteReg_IN) || 
+		   (IDRegRT_IN == IDEXEWriteReg_IN)))) || ((Branch_IN || Jump_IN) && EXEMEMMemRead_IN &&
+		   ((EXEMEMWriteReg_IN == IDRegRS_IN) || (EXEMEMWriteReg_IN == IDRegRT_IN))))begin
 			assign FLUSH_IDEXE_Enable= 1'b1;
-		end else
+		end else begin
 			assign FLUSH_IDEXE_Enable= 1'b0;
 		end
 
+		// Branch/Jump Stalls
+		if(Jump_IN || Branch_IN) begin
+			assign STALL_IFID_Enable =1'b1;
+		end else begin
+			assign STALL_IFID_Enable =1'b0;
+		end
+
+		// Data hazards
+		if ((IDEXEWriteEnable_IN && ((IDRegRS_IN == EXEMEMWriteReg_IN) || (IDRegRS_IN == EXEMEMWriteReg_IN))) || 
+		    (EXEMEMMemRead_IN && ((IDRegRS_IN == EXEMEMWriteReg_IN) || (IDRegRT_IN == EXEMEMWriteReg_IN))) ||
+		    (IDEXEWriteEnable_IN && ((IDRegRT_IN == EXEMEMWriteReg_IN) || (IDRegRT_IN == EXEMEMWriteReg_IN)))) begin
+
+			assign STALL_IDEXE_Enable = 1'b1;
+		end else begin
+			assign STALL_IDEXE_Enable = 1'b0;
+		end 
+	end
 end
 
 endmodule
